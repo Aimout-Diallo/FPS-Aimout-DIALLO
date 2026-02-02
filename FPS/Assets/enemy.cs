@@ -1,50 +1,137 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class enemy : MonoBehaviour
 {
     [Header("Stats")]
-    public int HP = 50;// Points de vie
-    public int maxHP = 100;//point de vie max
-
+    public int HP = 100;
+    public int maxHP = 100;
 
     [Header("Déplacement")]
-    public float Speed = 20f;//vitesse
-    public float attackrange = 2f;//distance requise pour attaquer
-    [Header("Détection")]
-    public float detectionRange = 50f;
+    public float moveSpeed = 3f;
+    public float stoppingDistance = 2f; // Distance à laquelle il s'arrête
+
+    [Header("Combat")]
+    public float attackRange = 2.5f;
+    public int damage = 15;
+    public float attackCooldown = 1.5f;
     private float lastAttackTime = 0f;
-    private Transform currentTarget;
-    public GameObject projectilePrefab;
-    public float projectileCooldown = 10f;
-    public Transform projectileSpawnPoint;
-    private float lastProjectileTime = 0f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    [Header("Détection")]
+    public float detectionRange = 15f;
+
+    private Transform player;
+    private bool hasDetectedPlayer = false;
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    public void Takedamage(int damageAmount)
-    {
-        HP -= damageAmount;
-
-        Debug.Log("HP du ninja: {HP}");
-
-        if (HP <= 0)
+        HP=maxHP;
+        // Trouve le joueur au démarrage
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
         {
-            Die(); //appeller la fonction a mourir
+            player = playerObj.transform;
         }
     }
 
+    void Update()
+    {
+        // Si pas de joueur, cherche-le
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+            return;
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        // Détection du joueur
+        if (distanceToPlayer <= detectionRange)
+        {
+            hasDetectedPlayer = true;
+        }
+
+        if (hasDetectedPlayer)
+        {
+            // Si trop loin, se déplacer vers le joueur
+            if (distanceToPlayer > stoppingDistance)
+            {
+                MoveTowardsPlayer();
+            }
+            else
+            {
+                // Arrête de bouger et regarde le joueur
+                LookAtPlayer();
+            }
+
+            // Attaque si assez proche et cooldown terminé
+            if (distanceToPlayer <= attackRange && Time.time >= lastAttackTime + attackCooldown)
+            {
+                AttackPlayer();
+                lastAttackTime = Time.time;
+            }
+        }
+    }
+
+    void MoveTowardsPlayer()
+    {
+        // Calcule la direction vers le joueur
+        Vector3 direction = (player.position - transform.position).normalized;
+
+        // Garde seulement les axes X et Z (pas de vol)
+        direction.y = 0;
+
+        // Déplace l'ennemi
+        transform.position += direction * moveSpeed * Time.deltaTime;
+
+        // Regarde vers le joueur
+        LookAtPlayer();
+    }
+
+    void LookAtPlayer()
+    {
+        // Fait tourner l'ennemi vers le joueur
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0; // Garde la rotation horizontale seulement
+
+        if (direction != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        }
+    }
+
+    void AttackPlayer()
+    {
+        Debug.Log("L'ennemi attaque le joueur !");
+
+        // Inflige des dégâts au joueur
+        ninja ninja = GetComponent<ninja>();
+        if (ninja != null)
+        {
+            ninja.Takedamagee(damage);
+        }
+    }
+
+    public void Takedamage(int damage)
+    {
+        HP -= damage;
+        Debug.Log($"HP de l'ennemi: {HP}");
+
+        if (HP <= 0)
+        {
+            Die();
+        }
+    }
 
     void Die()
     {
-        Debug.Log(" enenmy mort !");
+        Debug.Log("Ennemi mort !");
         Destroy(gameObject);
     }
 }

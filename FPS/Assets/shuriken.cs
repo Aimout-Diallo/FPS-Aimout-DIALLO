@@ -57,7 +57,7 @@ public class shuriken : MonoBehaviour
                 ninja.Takedamage(damage); // Appelle la méthode Takedamage() du ninja pour lui infliger des dégâts
 
 
-                Debug.Log("Boule touche le Gobelin !");
+                Debug.Log("shuriken touche le ninja !");
             }
 
 

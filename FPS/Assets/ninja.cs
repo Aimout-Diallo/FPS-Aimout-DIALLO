@@ -10,21 +10,24 @@ public class ninja : MonoBehaviour
 
     // Variables pour le saut et mouvement
     public int HP = 100;
+    public int maxHP = 200;
     public float jumpForce = 5f;
     public float moveSpeed = 20f;
     public float airControl = 0.3f; // Contr�le réduit en l'air
     private bool isGrounded = true;
-    public GameObject ninjaenemy;
+    public Transform ninjaenemy;
     public GameObject projectilePrefab;//pour les shurikens
     public float projectileCooldown = 10f;
     public Transform projectileSpawnPoint;
     private float lastProjectileTime = 0f;
     public int damage = 40;
+    public float attackrange = 2f;
 
     private Rigidbody rb;
 
     void Start()
     {
+
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -32,6 +35,21 @@ public class ninja : MonoBehaviour
 
     void Update()
     {
+
+        if (ninjaenemy == null || !ninjaenemy.gameObject.activeInHierarchy)
+        {
+            GameObject enemyObj = GameObject.FindGameObjectWithTag("enemi");
+            if (enemyObj != null)
+            {
+                ninjaenemy = enemyObj.transform;
+                Debug.Log("Ennemi trouvé : " + ninjaenemy.name);
+            }
+
+
+        }
+    
+        
+    
         // Recupere la cam�ra principale
         Transform cam = Camera.main.transform;
 
@@ -64,10 +82,19 @@ public class ninja : MonoBehaviour
         {
             movement += -right;
         }
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+            float distance = Vector3.Distance(transform.position, ninjaenemy.position);
+            Debug.Log(distance);
             AttackTarget();
+
         }
+
+
+
+
+    
+            
 
         // Applique le mouvement differemment selon si on est au sol ou en l'air
         if (isGrounded)
@@ -114,22 +141,41 @@ public class ninja : MonoBehaviour
     {
         isGrounded = false;
     }
+    public void Takedamagee(int damage)
+    {
+        HP -= damage;
+        Debug.Log("HP: {HP}");
+
+        if (HP <= 0)
+        {
+            Debug.Log("perdu");
+        }
+    }
     void AttackTarget()
     {
 
-        if (ninjaenemy == null) return;
+        
 
         // ATTAQUE LE NINJA 
         if (ninjaenemy.CompareTag("enemi"))
         {
-            enemy ninja = ninjaenemy.GetComponent<enemy>();
-            if (ninja != null)
+            float distance = Vector3.Distance(transform.position, ninjaenemy.position);
+            if (distance<attackrange)
             {
-                Debug.Log("ninja attaqué ");
-                ninja.Takedamage(damage);
+                Debug.Log("Je touche l'enemi");
+                enemy ninja = ninjaenemy.GetComponent<enemy>();
+                if (ninja != null)
+                {
+                    Debug.Log("ninja attaqué ");
+                    ninja.Takedamage(damage);
+                    if (ninjaenemy == null) return;
+                }
+
             }
+            
         }
     }
+
     void ShootProjectile() //fonction pour le projectile
     {
         if (projectilePrefab == null) //si les données du projectile sont pas présents
@@ -151,9 +197,9 @@ public class ninja : MonoBehaviour
         GameObject projectile = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
 
         Vector3 shootDirection;
-        if (currentTarget != null)
+        if (ninjaenemy != null)
         {
-            shootDirection = (currentTarget.position - spawnPos).normalized;
+            shootDirection = (ninjaenemy.position - spawnPos).normalized;
         }
         else
         {
