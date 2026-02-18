@@ -594,7 +594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 958e5a1dba7b1d849a9ff1f39397b579, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::spawnenemy
-  enemi: {fileID: 181279088963226324, guid: df73eec07d1705e48b3de12fcdb94fc2, type: 3}
+  enemi: {fileID: 7363876936726962205, guid: 857a5b3c434016348b2398484503646f, type: 3}
   spawnPoint: {fileID: 1642424379}
 --- !u!65 &1642424376
 BoxCollider:
@@ -724,10 +724,11 @@ MonoBehaviour:
   mouseX: 10
   direction: {x: 0, y: 0, z: 1}
   HP: 100
+  maxHP: 200
   jumpForce: 20
   moveSpeed: 20
   airControl: 0.3
-  ninjaenemy: {fileID: 707022202233180270, guid: df73eec07d1705e48b3de12fcdb94fc2, type: 3}
+  ninjaenemy: {fileID: 7888740440713542311, guid: 857a5b3c434016348b2398484503646f, type: 3}
   projectilePrefab: {fileID: 6464443513665838848, guid: 348ee0a519acd1a4984f30b788a61938, type: 3}
   projectileCooldown: 10
   projectileSpawnPoint: {fileID: 1816761924}

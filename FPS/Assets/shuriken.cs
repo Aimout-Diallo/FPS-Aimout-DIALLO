@@ -48,7 +48,7 @@ public class shuriken : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
 
-        if (other.CompareTag("enemy"))// Vérifie si l'objet qui touche a le tag "ninja"
+        if (other.CompareTag("enemi"))// Vérifie si l'objet qui touche a le tag "ninja"
         {
 
             enemy ninja = other.GetComponent<enemy>();// Récupère les données du gobelin touché

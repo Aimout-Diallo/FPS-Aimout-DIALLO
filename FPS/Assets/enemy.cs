@@ -26,6 +26,8 @@ public class enemy : MonoBehaviour
 
     private Animator run;
     private string runn = "mixamo_com";
+    private Animator idle;
+    private string idlle = "idle";
 
     void Start()
     {
@@ -36,6 +38,8 @@ public class enemy : MonoBehaviour
         {
             player = playerObj.transform;
             run = GetComponent<Animator>();
+            idle = GetComponent<Animator>();
+            idle.Play(idlle);
         }
     }
 
@@ -44,6 +48,7 @@ public class enemy : MonoBehaviour
         // Si pas de joueur, cherche-le
         if (player == null)
         {
+            idle.Play(idlle);
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null)
             {
@@ -58,6 +63,7 @@ public class enemy : MonoBehaviour
         if (distanceToPlayer <= detectionRange)
         {
             hasDetectedPlayer = true;
+            
         }
 
         if (hasDetectedPlayer)
