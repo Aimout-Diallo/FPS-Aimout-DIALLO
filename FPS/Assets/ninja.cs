@@ -13,10 +13,10 @@ public class ninja : MonoBehaviour
     public int maxHP = 200;
     public float jumpForce = 5f;
     public float moveSpeed = 20f;
-    public float airControl = 0.3f; // Contr�le réduit en l'air
+    public float airControl = 0.3f;
     private bool isGrounded = true;
     public Transform ninjaenemy;
-    public GameObject projectilePrefab;//pour les shurikens
+    public GameObject projectilePrefab;
     public float projectileCooldown = 10f;
     public Transform projectileSpawnPoint;
     private float lastProjectileTime = 0f;
@@ -27,7 +27,6 @@ public class ninja : MonoBehaviour
 
     void Start()
     {
-
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -35,7 +34,6 @@ public class ninja : MonoBehaviour
 
     void Update()
     {
-
         if (ninjaenemy == null || !ninjaenemy.gameObject.activeInHierarchy)
         {
             GameObject enemyObj = GameObject.FindGameObjectWithTag("enemi");
@@ -44,72 +42,45 @@ public class ninja : MonoBehaviour
                 ninjaenemy = enemyObj.transform;
                 Debug.Log("Ennemi trouvé : " + ninjaenemy.name);
             }
-
-
         }
-    
-        
-    
-        // Recupere la cam�ra principale
+
         Transform cam = Camera.main.transform;
 
-        // R�cup�re les directions de la camera
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
 
-        // Supprime la composante Y pour rester au sol
         forward.y = 0;
         right.y = 0;
         forward.Normalize();
         right.Normalize();
 
-        // Calcule le mouvement
         Vector3 movement = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            movement += forward;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            movement += -forward;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            movement += right;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            movement += -right;
-        }
+        if (Input.GetKey(KeyCode.W)) movement += forward;
+        if (Input.GetKey(KeyCode.S)) movement += -forward;
+        if (Input.GetKey(KeyCode.D)) movement += right;
+        if (Input.GetKey(KeyCode.A)) movement += -right;
+
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            float distance = Vector3.Distance(transform.position, ninjaenemy.position);
-            Debug.Log(distance);
             AttackTarget();
-
         }
 
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            ShootProjectile();
+        }
 
-
-
-    
-            
-
-        // Applique le mouvement differemment selon si on est au sol ou en l'air
         if (isGrounded)
         {
-            // Au sol : controle total
             Vector3 newVelocity = movement * moveSpeed;
             newVelocity.y = rb.linearVelocity.y;
             rb.linearVelocity = newVelocity;
         }
         else
         {
-            // En l'air : controle réduit (on ajoute une petite force)
             rb.AddForce(movement * moveSpeed * airControl, ForceMode.Acceleration);
 
-            // Limite la vitesse horizontale en l'air
             Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             if (horizontalVelocity.magnitude > moveSpeed)
             {
@@ -118,7 +89,6 @@ public class ninja : MonoBehaviour
             }
         }
 
-        // SAUT
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -126,7 +96,6 @@ public class ninja : MonoBehaviour
         }
     }
 
-    // Détecte si on touche le sol
     void OnCollisionEnter(Collision collision)
     {
         isGrounded = true;
@@ -141,50 +110,47 @@ public class ninja : MonoBehaviour
     {
         isGrounded = false;
     }
+
     public void Takedamagee(int damage)
     {
         HP -= damage;
-        Debug.Log("HP: {HP}");
+        Debug.Log("HP: " + HP);
 
         if (HP <= 0)
         {
             Debug.Log("perdu");
         }
     }
+
     void AttackTarget()
     {
-
-        
-
-        // ATTAQUE LE NINJA 
         if (ninjaenemy.CompareTag("enemi"))
         {
             float distance = Vector3.Distance(transform.position, ninjaenemy.position);
-            if (distance<attackrange)
+            if (distance < attackrange)
             {
-                Debug.Log("Je touche l'enemi");
                 enemy ninja = ninjaenemy.GetComponent<enemy>();
                 if (ninja != null)
                 {
-                    Debug.Log("ninja attaqué ");
                     ninja.Takedamage(damage);
-                    if (ninjaenemy == null) return;
                 }
-
             }
-            
         }
     }
 
-    void ShootProjectile() //fonction pour le projectile
+    // ==========================
+    // 🔥 PARTIE SHURIKEN FIXÉE
+    // ==========================
+    void ShootProjectile()
     {
-        if (projectilePrefab == null) //si les données du projectile sont pas présents
+        if (projectilePrefab == null)
         {
             Debug.LogError("Prefab du projectile manquant !");
             return;
         }
 
-        Vector3 spawnPos; //apparition
+        Vector3 spawnPos;
+
         if (projectileSpawnPoint != null)
         {
             spawnPos = projectileSpawnPoint.position;
@@ -196,22 +162,27 @@ public class ninja : MonoBehaviour
 
         GameObject projectile = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
 
-        Vector3 shootDirection;
-        if (ninjaenemy != null)
+        // Direction vers le centre de l'écran (FPS)
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        RaycastHit hit;
+
+        Vector3 targetPoint;
+
+        if (Physics.Raycast(ray, out hit))
         {
-            shootDirection = (ninjaenemy.position - spawnPos).normalized;
+            targetPoint = hit.point;
         }
         else
         {
-            shootDirection = transform.forward;
+            targetPoint = ray.GetPoint(100f);
         }
 
-        shuriken projectileScript = projectile.GetComponent<shuriken>();
-        if (projectileScript != null)
+        Vector3 shootDirection = (targetPoint - spawnPos).normalized;
+
+        shuriken sh = projectile.GetComponent<shuriken>();
+        if (sh != null)
         {
-            projectileScript.SetDirection(shootDirection);
+            sh.SetDirection(shootDirection);
         }
-
-        Debug.Log("Projectile lance !");
     }
 }

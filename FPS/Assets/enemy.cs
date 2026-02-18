@@ -24,6 +24,9 @@ public class enemy : MonoBehaviour
     private Transform player;
     private bool hasDetectedPlayer = false;
 
+    private Animator run;
+    private string runn = "mixamo_com";
+
     void Start()
     {
         HP=maxHP;
@@ -32,6 +35,7 @@ public class enemy : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
+            run = GetComponent<Animator>();
         }
     }
 
@@ -58,15 +62,23 @@ public class enemy : MonoBehaviour
 
         if (hasDetectedPlayer)
         {
+            
             // Si trop loin, se déplacer vers le joueur
             if (distanceToPlayer > stoppingDistance)
             {
                 MoveTowardsPlayer();
+                run.SetBool("isRunning", true);
+                run.Play(runn);
+
+
             }
             else
             {
                 // Arrête de bouger et regarde le joueur
                 LookAtPlayer();
+                run.SetBool("isRunning", false);
+               
+
             }
 
             // Attaque si assez proche et cooldown terminé
@@ -80,6 +92,7 @@ public class enemy : MonoBehaviour
 
     void MoveTowardsPlayer()
     {
+        
         // Calcule la direction vers le joueur
         Vector3 direction = (player.position - transform.position).normalized;
 
@@ -91,6 +104,7 @@ public class enemy : MonoBehaviour
 
         // Regarde vers le joueur
         LookAtPlayer();
+        
     }
 
     void LookAtPlayer()

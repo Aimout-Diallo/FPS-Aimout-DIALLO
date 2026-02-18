@@ -11,14 +11,17 @@ public class shuriken : MonoBehaviour
     private Vector3 direction;
     private float cooldoawn = 5f;
     private float nextplacetime = 0f;
+    public float rotationSpeed = 1000f;
 
     void Start()
     {
         startPosition = transform.position;
+
     }
 
     void Update()
     {
+        transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
 
         transform.position += direction * speed * Time.deltaTime;
 
@@ -35,7 +38,8 @@ public class shuriken : MonoBehaviour
 
         if (direction != Vector3.zero)
         {
-            transform.rotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.LookRotation(direction)
+                             * Quaternion.Euler(90f, 0f, 0f);
         }
     }
 
