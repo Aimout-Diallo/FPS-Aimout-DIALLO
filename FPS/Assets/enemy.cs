@@ -28,10 +28,13 @@ public class enemy : MonoBehaviour
     private string runn = "mixamo_com";
     private Animator idle;
     private string idlle = "idle";
-
+    private bool isGrounded = true;
+    private Rigidbody rb;
+    public float jumpForce = 5f;
+    public float airControl = 0.3f;
     void Start()
     {
-        HP=maxHP;
+        HP = maxHP;
         // Trouve le joueur au démarrage
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -40,6 +43,8 @@ public class enemy : MonoBehaviour
             run = GetComponent<Animator>();
             idle = GetComponent<Animator>();
             idle.Play(idlle);
+            rb = GetComponent<Rigidbody>();
+            rb.freezeRotation = true;
         }
     }
 
@@ -63,12 +68,12 @@ public class enemy : MonoBehaviour
         if (distanceToPlayer <= detectionRange)
         {
             hasDetectedPlayer = true;
-            
+
         }
 
         if (hasDetectedPlayer)
         {
-            
+
             // Si trop loin, se déplacer vers le joueur
             if (distanceToPlayer > stoppingDistance)
             {
@@ -83,7 +88,7 @@ public class enemy : MonoBehaviour
                 // Arrête de bouger et regarde le joueur
                 LookAtPlayer();
                 run.SetBool("isRunning", false);
-               
+
 
             }
 
@@ -94,7 +99,26 @@ public class enemy : MonoBehaviour
                 lastAttackTime = Time.time;
             }
         }
+ 
     }
+
+    
+
+    void OnCollisionEnter(Collision collision)
+    {
+        isGrounded = true;
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        isGrounded = true;
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        isGrounded = false;
+    }
+
 
     void MoveTowardsPlayer()
     {
