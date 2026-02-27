@@ -14,7 +14,7 @@ public class ninja : MonoBehaviour
     public float jumpForce = 5f;
     public float moveSpeed = 20f;
     public float airControl = 0.3f;
-    private bool isGrounded = true;
+    public bool isGrounded = true;
     public Transform ninjaenemy;
     public GameObject projectilePrefab;
     public float projectileCooldown = 10f;
@@ -138,9 +138,7 @@ public class ninja : MonoBehaviour
         }
     }
 
-    // ==========================
-    // 🔥 PARTIE SHURIKEN FIXÉE
-    // ==========================
+    
     void ShootProjectile()
     {
         if (projectilePrefab == null)

@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::shuriken
   speed: 20
-  damage: 40
+  damage: 30
   maxDistance: 60
   rotationSpeed: 1000
 --- !u!65 &374372094270290227

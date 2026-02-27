@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public class enemy : MonoBehaviour
@@ -7,6 +8,12 @@ public class enemy : MonoBehaviour
     [Header("Stats")]
     public int HP = 100;
     public int maxHP = 100;
+
+    [Header("Errance")]
+    public float wanderRadius = 5f;
+    public float wanderCooldown = 3f;
+    private float lastWanderTime = 0f;
+    private Vector3 wanderTarget;
 
     [Header("Déplacement")]
     public float moveSpeed = 3f;
@@ -32,6 +39,11 @@ public class enemy : MonoBehaviour
     private Rigidbody rb;
     public float jumpForce = 5f;
     public float airControl = 0.3f;
+    private Animator dégat;
+    private string déégat = "dégat";
+    private Animator punch;
+    private string punnch = "punch";
+    private bool hasJumped = false;
     void Start()
     {
         HP = maxHP;
@@ -40,9 +52,10 @@ public class enemy : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
+            dégat = GetComponent<Animator>();
             run = GetComponent<Animator>();
             idle = GetComponent<Animator>();
-            idle.Play(idlle);
+            punch= GetComponent<Animator>();
             rb = GetComponent<Rigidbody>();
             rb.freezeRotation = true;
         }
@@ -53,7 +66,8 @@ public class enemy : MonoBehaviour
         // Si pas de joueur, cherche-le
         if (player == null)
         {
-            idle.Play(idlle);
+            
+            
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null)
             {
@@ -73,13 +87,32 @@ public class enemy : MonoBehaviour
 
         if (hasDetectedPlayer)
         {
+            ninja monninja = player.GetComponent<ninja>();
+            if (monninja != null && !monninja.isGrounded && isGrounded && !hasJumped)
+            {
+                Debug.Log("L'ennemi saute !");
+                run.SetBool("saut", true);
+                Debug.Log("isGrounded: " + isGrounded + " | hasJumped: " + hasJumped + " | ninja grounded: " + monninja.isGrounded);
+                Vector3 jumpDirection = (player.position - transform.position).normalized;
+                jumpDirection.y = 0;
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                rb.AddForce(Vector3.up * 10f, ForceMode.Impulse);
+                isGrounded = false;
+                hasJumped = true;
+            }
 
+            if (isGrounded) // Reset quand il retouche le sol
+            {
+                hasJumped = false;
+            }
+
+           
             // Si trop loin, se déplacer vers le joueur
             if (distanceToPlayer > stoppingDistance)
             {
                 MoveTowardsPlayer();
-                run.SetBool("isRunning", true);
-                run.Play(runn);
+                run.SetBool("IsRunning", true);
+                
 
 
             }
@@ -87,7 +120,8 @@ public class enemy : MonoBehaviour
             {
                 // Arrête de bouger et regarde le joueur
                 LookAtPlayer();
-                run.SetBool("isRunning", false);
+                run.SetBool("IsRunning", false);
+                
 
 
             }
@@ -96,29 +130,35 @@ public class enemy : MonoBehaviour
             if (distanceToPlayer <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             {
                 AttackPlayer();
+
+                
                 lastAttackTime = Time.time;
             }
         }
  
     }
 
-    
+
 
     void OnCollisionEnter(Collision collision)
     {
-        isGrounded = true;
+        if (collision.contacts[0].normal.y > 0.5f)
+        {
+            StartCoroutine(ResetJump());
+        }
     }
 
-    void OnCollisionStay(Collision collision)
+    IEnumerator ResetJump()
     {
+        yield return new WaitForSeconds(0.2f);
         isGrounded = true;
+        hasJumped = false;
     }
 
     void OnCollisionExit(Collision collision)
     {
         isGrounded = false;
     }
-
 
     void MoveTowardsPlayer()
     {
@@ -130,12 +170,15 @@ public class enemy : MonoBehaviour
         direction.y = 0;
 
         // Déplace l'ennemi
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        rb.linearVelocity = new Vector3(direction.x * moveSpeed, rb.linearVelocity.y, direction.z * moveSpeed);
 
         // Regarde vers le joueur
         LookAtPlayer();
         
     }
+
+    
+    
 
     void LookAtPlayer()
     {
@@ -153,20 +196,22 @@ public class enemy : MonoBehaviour
     void AttackPlayer()
     {
         Debug.Log("L'ennemi attaque le joueur !");
-
+        
         // Inflige des dégâts au joueur
-        ninja ninja = GetComponent<ninja>();
-        if (ninja != null)
+        ninja monninja = player.GetComponent<ninja>();
+        if (monninja != null)
         {
-            ninja.Takedamagee(damage);
+            monninja.Takedamagee(damage);
+            run.SetTrigger("Attack");
         }
     }
 
     public void Takedamage(int damage)
     {
+        run.SetTrigger("Damage");
         HP -= damage;
         Debug.Log($"HP de l'ennemi: {HP}");
-
+        
         if (HP <= 0)
         {
             Die();

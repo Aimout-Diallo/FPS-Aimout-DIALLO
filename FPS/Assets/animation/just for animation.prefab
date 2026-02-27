@@ -68,10 +68,10 @@ PrefabInstance:
       addedObject: {fileID: 9008712264254915661}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c420fddc8e5884349a5c34ee275c3c5d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4550340039103598787}
+      addedObject: {fileID: 8129597531876257626}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c420fddc8e5884349a5c34ee275c3c5d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8129597531876257626}
+      addedObject: {fileID: 6795431774781515795}
   m_SourcePrefab: {fileID: 100100000, guid: c420fddc8e5884349a5c34ee275c3c5d, type: 3}
 --- !u!1 &7363876936726962205 stripped
 GameObject:
@@ -92,13 +92,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::enemy
   HP: 100
   maxHP: 100
+  wanderRadius: 5
+  wanderCooldown: 3
   moveSpeed: 20
   stoppingDistance: 2
   attackRange: 2.5
   damage: 15
   attackCooldown: 1.5
   detectionRange: 10
-  jumpForce: 5
+  jumpForce: 200
   airControl: 0.3
 --- !u!54 &9008712264254915661
 Rigidbody:
@@ -108,7 +110,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7363876936726962205}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 0.5
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -123,31 +125,10 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &4550340039103598787
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7363876936726962205}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!95 &8129597531876257626
 Animator:
   serializedVersion: 7
@@ -170,3 +151,26 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!136 &6795431774781515795
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7363876936726962205}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.789541
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.82412064, z: 0}
