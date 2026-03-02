@@ -22,6 +22,7 @@ public class ninja : MonoBehaviour
     private float lastProjectileTime = 0f;
     public int damage = 40;
     public float attackrange = 2f;
+    public bool justJumped = false;
 
     private Rigidbody rb;
 
@@ -30,6 +31,7 @@ public class ninja : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        justJumped = false;
     }
 
     void Update()
@@ -76,10 +78,12 @@ public class ninja : MonoBehaviour
             Vector3 newVelocity = movement * moveSpeed;
             newVelocity.y = rb.linearVelocity.y;
             rb.linearVelocity = newVelocity;
+            justJumped = false;
         }
         else
         {
             rb.AddForce(movement * moveSpeed * airControl, ForceMode.Acceleration);
+            justJumped = true;
 
             Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             if (horizontalVelocity.magnitude > moveSpeed)

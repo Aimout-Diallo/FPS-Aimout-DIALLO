@@ -58,6 +58,7 @@ public class enemy : MonoBehaviour
             punch= GetComponent<Animator>();
             rb = GetComponent<Rigidbody>();
             rb.freezeRotation = true;
+
         }
     }
 
@@ -85,10 +86,11 @@ public class enemy : MonoBehaviour
 
         }
 
+        
         if (hasDetectedPlayer)
         {
             ninja monninja = player.GetComponent<ninja>();
-            if (monninja != null && !monninja.isGrounded && isGrounded && !hasJumped)
+            if (monninja != null && !monninja.isGrounded && isGrounded && !hasJumped && monninja.justJumped)
             {
                 Debug.Log("L'ennemi saute !");
                 run.SetBool("saut", true);
@@ -104,15 +106,38 @@ public class enemy : MonoBehaviour
             if (isGrounded) // Reset quand il retouche le sol
             {
                 hasJumped = false;
+                run.SetBool("saut", false);
+                run.SetBool("IsRunning", true);
+            }
+            else if (hasJumped)
+            {
+                run.SetBool("saut",true);
+                run.SetBool("IsRunning", false);
+                hasJumped = true;
             }
 
-           
+
             // Si trop loin, se déplacer vers le joueur
             if (distanceToPlayer > stoppingDistance)
             {
                 MoveTowardsPlayer();
                 run.SetBool("IsRunning", true);
-                
+                if (hasJumped) {
+                    run.SetBool("saut", true);
+                    run.SetBool("IsRunning", false);
+                    hasJumped = true;
+
+
+                }
+                else
+                {
+                    run.SetBool("IsRunning", true);
+                    run.SetBool("saut", false);
+                    hasJumped = false;
+                    
+
+                }
+
 
 
             }
@@ -121,19 +146,33 @@ public class enemy : MonoBehaviour
                 // Arrête de bouger et regarde le joueur
                 LookAtPlayer();
                 run.SetBool("IsRunning", false);
-                
+                if (hasJumped)
+                {
+                    run.SetBool("saut", true);
+                    run.SetBool("IsRunning", false);
+                    hasJumped = true;
+                }
+                else 
+                {
+                    run.SetBool("saut",false);
+                    hasJumped = false;
+
+                }
 
 
-            }
+
+                }
 
             // Attaque si assez proche et cooldown terminé
             if (distanceToPlayer <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             {
                 AttackPlayer();
+                run.SetBool("saut",false);
 
                 
                 lastAttackTime = Time.time;
             }
+            
         }
  
     }
@@ -158,6 +197,7 @@ public class enemy : MonoBehaviour
     void OnCollisionExit(Collision collision)
     {
         isGrounded = false;
+        hasJumped = true;
     }
 
     void MoveTowardsPlayer()
@@ -204,6 +244,7 @@ public class enemy : MonoBehaviour
             monninja.Takedamagee(damage);
             run.SetTrigger("Attack");
         }
+
     }
 
     public void Takedamage(int damage)
