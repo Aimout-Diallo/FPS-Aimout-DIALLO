@@ -154,8 +154,9 @@ public class enemy : MonoBehaviour
                 }
                 else 
                 {
-                    run.SetBool("saut",false);
                     hasJumped = false;
+                    run.SetBool("saut",false);
+                    
 
                 }
 
