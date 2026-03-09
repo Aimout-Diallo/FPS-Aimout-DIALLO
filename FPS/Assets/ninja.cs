@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +24,8 @@ public class ninja : MonoBehaviour
     public int damage = 40;
     public float attackrange = 2f;
     public bool justJumped = false;
+    public TextMeshProUGUI perduText;
+    public TextMeshProUGUI hpText;
 
     private Rigidbody rb;
 
@@ -32,10 +35,16 @@ public class ninja : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         justJumped = false;
+        if (perduText != null)
+        perduText.gameObject.SetActive(false);
     }
 
     void Update()
     {
+        if (hpText != null)
+        {
+            hpText.text = "HP: " + HP;
+        }
         if (ninjaenemy == null || !ninjaenemy.gameObject.activeInHierarchy)
         {
             GameObject enemyObj = GameObject.FindGameObjectWithTag("enemi");
@@ -58,14 +67,14 @@ public class ninja : MonoBehaviour
 
         Vector3 movement = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.W)) movement += forward;
+        if (Input.GetKey(KeyCode.W)) movement += forward; // déplacement
         if (Input.GetKey(KeyCode.S)) movement += -forward;
         if (Input.GetKey(KeyCode.D)) movement += right;
         if (Input.GetKey(KeyCode.A)) movement += -right;
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            AttackTarget();
+            AttackTarget(); //appelle l'attaque
         }
 
         if (Input.GetKeyDown(KeyCode.LeftControl))
@@ -73,7 +82,7 @@ public class ninja : MonoBehaviour
             ShootProjectile();
         }
 
-        if (isGrounded)
+        if (isGrounded)// si au sol
         {
             Vector3 newVelocity = movement * moveSpeed;
             newVelocity.y = rb.linearVelocity.y;
@@ -82,7 +91,7 @@ public class ninja : MonoBehaviour
         }
         else
         {
-            rb.AddForce(movement * moveSpeed * airControl, ForceMode.Acceleration);
+            rb.AddForce(movement * moveSpeed * airControl, ForceMode.Acceleration); //sensibilité du controle dans les airs
             justJumped = true;
 
             Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
@@ -100,7 +109,7 @@ public class ninja : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)  //savoir si on est au sol ou non
     {
         isGrounded = true;
     }
@@ -115,34 +124,50 @@ public class ninja : MonoBehaviour
         isGrounded = false;
     }
 
-    public void Takedamagee(int damage)
+    public void Takedamagee(int damage)  //script dégat
     {
         HP -= damage;
         Debug.Log("HP: " + HP);
 
         if (HP <= 0)
         {
-            Debug.Log("perdu");
+            StartCoroutine(GameOver());
         }
+    }
+
+    IEnumerator GameOver()
+    {
+        if (perduText != null)
+        {
+            perduText.gameObject.SetActive(true);
+            perduText.text = "PERDU !";
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene(
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
+        );
     }
 
     void AttackTarget()
     {
-        if (ninjaenemy.CompareTag("enemi"))
+        // Cherche tous les ennemis dans la portée
+        Collider[] hits = Physics.OverlapSphere(transform.position, attackrange);
+        foreach (Collider hit in hits)
         {
-            float distance = Vector3.Distance(transform.position, ninjaenemy.position);
-            if (distance < attackrange)
+            if (hit.CompareTag("enemi"))
             {
-                enemy ninja = ninjaenemy.GetComponent<enemy>();
-                if (ninja != null)
+                enemy en = hit.GetComponent<enemy>();
+                if (en != null)
                 {
-                    ninja.Takedamage(damage);
+                    en.Takedamage(damage);
                 }
             }
         }
     }
 
-    
+
     void ShootProjectile()
     {
         if (projectilePrefab == null)

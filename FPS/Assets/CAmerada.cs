@@ -18,11 +18,11 @@ public class CAmerada : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float inputX = Input.GetAxis("Mouse X") * sensitivity;
+        float inputX = Input.GetAxis("Mouse X") * sensitivity; //controle de la camera via la souris 
         float inputY = Input.GetAxis("Mouse Y") * sensitivity;
 
         CameraVerticalRotation -= inputY;
-        CameraVerticalRotation = Mathf.Clamp(CameraVerticalRotation, -90f, 90f);
+        CameraVerticalRotation = Mathf.Clamp(CameraVerticalRotation, -90f, 90f);// limiter la rotation camera
         transform.localEulerAngles = Vector3.right * CameraVerticalRotation;
 
 

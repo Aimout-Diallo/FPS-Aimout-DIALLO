@@ -97,7 +97,7 @@ MonoBehaviour:
   moveSpeed: 20
   stoppingDistance: 2
   attackRange: 2.5
-  damage: 15
+  damage: 5
   attackCooldown: 1.5
   detectionRange: 10
   jumpForce: 200
