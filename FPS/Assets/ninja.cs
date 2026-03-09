@@ -26,6 +26,8 @@ public class ninja : MonoBehaviour
     public bool justJumped = false;
     public TextMeshProUGUI perduText;
     public TextMeshProUGUI hpText;
+    public AudioSource punch;
+    public AudioSource SHURIKENF;
 
     private Rigidbody rb;
 
@@ -80,6 +82,7 @@ public class ninja : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             ShootProjectile();
+
         }
 
         if (isGrounded)// si au sol
@@ -162,6 +165,7 @@ public class ninja : MonoBehaviour
                 if (en != null)
                 {
                     en.Takedamage(damage);
+                    punch.Play();
                 }
             }
         }

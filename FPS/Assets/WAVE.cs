@@ -40,7 +40,7 @@ public class WaveManager : MonoBehaviour
         isSpawning = false;
     }
 
-    void SpawnWave() //systeme de vague
+    void SpawnWave()
     {
         Debug.Log("Vague " + (currentWave + 1) + " !");
         StartCoroutine(ShowWaveText());
@@ -59,30 +59,56 @@ public class WaveManager : MonoBehaviour
             }
 
             currentEnemies.Add(en);
+
             ninja playerNinja = GameObject.FindGameObjectWithTag("Player").GetComponent<ninja>();
             if (playerNinja != null)
             {
                 playerNinja.HP = playerNinja.maxHP;
             }
-           
         }
+
         if (currentWave == 3)
         {
             Vector3 spawnPos = spawnPoints[Random.Range(0, spawnPoints.Length)].position;
             Instantiate(boss, spawnPos, Quaternion.identity);
             Debug.Log("boss spawn");
+        }
 
+        if (currentWave == 4)
+        {
+            StartCoroutine(PauseGame());
         }
     }
 
-    IEnumerator ShowWaveText() //UI
+    IEnumerator ShowWaveText()
     {
         if (waveText != null)
         {
-            waveText.text = "Vague " + (currentWave + 1);
+            if (currentWave == 4)
+            {
+                waveText.text = "BRAVO";
+            }
+            else
+            {
+                waveText.text = "Vague " + (currentWave + 1);
+            }
+
             waveText.gameObject.SetActive(true);
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSecondsRealtime(2f);
             waveText.gameObject.SetActive(false);
         }
+    }
+
+    IEnumerator PauseGame()
+    {
+        Time.timeScale = 0;
+        yield return new WaitForSecondsRealtime(2f);
+        Time.timeScale = 1;
+
+        // reset des vagues
+        currentWave = 0;
+        enemiesPerWave = 6;
+
+        SpawnWave();
     }
 }

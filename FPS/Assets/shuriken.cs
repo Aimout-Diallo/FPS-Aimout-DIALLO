@@ -12,6 +12,7 @@ public class shuriken : MonoBehaviour
     private float cooldoawn = 5f;
     private float nextplacetime = 0f;
     public float rotationSpeed = 1000f;
+    public AudioSource shurikenf;
 
     void Start()
     {
@@ -22,6 +23,7 @@ public class shuriken : MonoBehaviour
     void Update()
     {
         transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
+        shurikenf.Play();
 
         transform.position += direction * speed * Time.deltaTime;
 

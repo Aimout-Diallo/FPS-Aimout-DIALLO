@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 
+
 public class enemy : MonoBehaviour
 {
     [Header("Stats")]
@@ -44,6 +45,7 @@ public class enemy : MonoBehaviour
     private Animator punch;
     private string punnch = "punch";
     private bool hasJumped = false;
+    
     void Start()
     {
         HP = maxHP;
@@ -255,6 +257,7 @@ public class enemy : MonoBehaviour
         run.SetTrigger("Damage");
         HP -= damage;
         Debug.Log($"HP de l'ennemi: {HP}");
+        
         
         if (HP <= 0)
         {
